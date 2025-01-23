@@ -15,8 +15,8 @@ const App = () => {
   
   return (
     <Router>
-      <Navbar />
       <div className="flex flex-col min-h-screen">
+        <Navbar />
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -29,8 +29,8 @@ const App = () => {
             <Route path="/dashboard" element={token ? <Navigate to="/dashboard" /> : <Navigate to="/signin" />} />
           </Routes>
         </main>
+        <Footer />
       </div>
-      <Footer />
     </Router>
   )
 }
