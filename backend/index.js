@@ -3,12 +3,18 @@ const express = require('express');
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const zod = require("zod");
+require('dotenv').config();
+
+// Import db connection
+require('./db');
 
 const { User } = require("./db");
+const postRoutes = require('./routes/post');
+const authMiddleware = require('./middleware/auth');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
-
 
 // SIGNUP ROUTE //
 
@@ -77,11 +83,17 @@ app.post("/signin", async (req, res) => {
 
     if (user) {
         const token = jwt.sign({
-            userId: user._id
+            userId: user._id,
+            username: user.username,
+            email: user.username
         }, process.env.JWT_SECRET);
   
         res.json({
-            token: token
+            token: token,
+            user: {
+                username: user.username,
+                email: user.username
+            }
         })
         return;
     }
@@ -91,7 +103,10 @@ app.post("/signin", async (req, res) => {
     })
 })
 
+// Routes
+app.use('/api/posts', postRoutes);
 
-app.listen(3000, ()=>{
-    console.log('Listening on port 3000')
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

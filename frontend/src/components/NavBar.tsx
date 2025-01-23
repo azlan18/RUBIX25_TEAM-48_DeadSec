@@ -8,7 +8,10 @@ import {
   Home,
   Phone,
   Info,
+  Users,
+  Plus,
 } from "lucide-react";
+import { useAuth } from '../contexts/AuthContext';
 
 const NavLink = ({ to, label, icon: Icon }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -52,11 +55,17 @@ const NavLink = ({ to, label, icon: Icon }) => {
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { session, setSession } = useAuth();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setSession(null);
+  };
 
   const navItems = [
     { to: "/", label: "Home", icon: Home },
-    { to: "/about", label: "About", icon: Info },
-    { to: "/contact", label: "Contact", icon: Phone },
+    { to: "/community", label: "Community", icon: Users },
+    { to: "/create-post", label: "Create Post", icon: Plus },
   ];
 
   return (
@@ -86,22 +95,47 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link to="/login">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-4 py-2 rounded-lg border-2 border-[#151616] hover:bg-[#D6F32F]/10 text-sm font-medium transition-colors">
-                Login
-              </motion.button>
-            </Link>
-            <Link to="/register">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-4 py-2 rounded-lg bg-[#D6F32F] border-2 border-[#151616] shadow-[3px_3px_0px_0px_#151616] hover:shadow-[1px_1px_0px_0px_#151616] hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-sm font-medium">
-                Sign Up
-              </motion.button>
-            </Link>
+            {session ? (
+              <>
+                <div className="flex flex-col items-end">
+                  <span className="text-sm font-medium text-[#151616]">
+                    {session.user.username.split('@')[0]}
+                  </span>
+                  <span className="text-xs text-[#151616]/70">
+                    {session.user.email}
+                  </span>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleLogout}
+                  className="px-4 py-2 rounded-lg bg-[#D6F32F] border-2 border-[#151616] shadow-[3px_3px_0px_0px_#151616] hover:shadow-[1px_1px_0px_0px_#151616] hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-sm font-medium"
+                >
+                  Logout
+                </motion.button>
+              </>
+            ) : (
+              <>
+                <Link to="/login">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-4 py-2 rounded-lg border-2 border-[#151616] hover:bg-[#D6F32F]/10 text-sm font-medium transition-colors"
+                  >
+                    Login
+                  </motion.button>
+                </Link>
+                <Link to="/register">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-4 py-2 rounded-lg bg-[#D6F32F] border-2 border-[#151616] shadow-[3px_3px_0px_0px_#151616] hover:shadow-[1px_1px_0px_0px_#151616] hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-sm font-medium"
+                  >
+                    Sign Up
+                  </motion.button>
+                </Link>
+              </>
+            )}
 
             <motion.button
               whileHover={{ scale: 1.05 }}
