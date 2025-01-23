@@ -1,48 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Sparkles, Send } from 'lucide-react';
-import { motion } from "framer-motion";
-import { api } from '../lib/api';
-import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import axios from 'axios';
 
 export default function CreatePost() {
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const [preview, setPreview] = useState<string>('');
-  const navigate = useNavigate();
-  const { session } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
 
+  // Check authentication at component level
   useEffect(() => {
-    if (!session) {
+    if (!token || !userId) {
       navigate('/login');
     }
-  }, [session, navigate]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      const objectUrl = URL.createObjectURL(selectedFile);
-      setPreview(objectUrl);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
-    };
-  }, [preview]);
+  }, [token, userId, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     
-    if (!session?.user.id) {
+    if (!token || !userId) {
       setError('You must be logged in to create a post');
+      navigate('/login');
       return;
     }
 
@@ -52,153 +38,149 @@ export default function CreatePost() {
     }
 
     try {
-      setUploading(true);
-      setError('');
-
+      setLoading(true);
       const formData = new FormData();
       formData.append('title', title);
       formData.append('content', content);
       formData.append('image', file);
+      formData.append('author', userId);
 
-      await api.createPost(formData);
-      navigate('/community');
-    } catch (error) {
-      setError('Failed to create post. Please try again.');
-      console.error('Error:', error);
+      const response = await axios.post('http://localhost:3000/api/posts', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      navigate(`/posts/${response.data._id}`);
+    } catch (err: any) {
+      console.error('Error creating post:', err);
+      if (err.response?.status === 401) {
+        // Token expired or invalid
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        navigate('/login');
+      } else {
+        setError(err.response?.data?.message || 'Failed to create post. Please try again.');
+      }
     } finally {
-      setUploading(false);
+      setLoading(false);
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  const removeImage = () => {
+    setFile(null);
+    setPreviewUrl(null);
+  };
+
   return (
-    <section className="py-24 bg-[#ffffff] relative overflow-hidden mt-16">
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(#151616 1px, transparent 1px)`,
-            backgroundSize: "24px 24px",
-            opacity: "0.1",
-          }}
-        />
-      </div>
-
-      <div className="container mx-auto px-6">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-2 bg-[#151616] text-white rounded-full px-4 py-2 mb-4"
-            >
-              <Sparkles className="w-4 h-4 text-[#D6F32F]" />
-              <span className="text-sm font-medium">Share Your Eco-Product</span>
-            </motion.div>
-
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-4xl font-bold text-[#151616] mb-4"
-            >
-              Create a New Post
-              <span className="inline-block ml-2">🌱</span>
-            </motion.h2>
-          </div>
-
+    <div className="container mx-auto px-4 py-8 pt-24">
+      <div className="max-w-2xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-xl border-2 border-[#151616] shadow-[4px_4px_0px_0px_#151616] p-6"
+        >
+          <h1 className="text-2xl font-bold mb-6">Create a New Post</h1>
           {error && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-red-100 border-2 border-red-400 text-red-700 px-4 py-3 rounded-xl mb-6"
-            >
+            <div className="bg-red-50 text-red-500 p-4 rounded-lg mb-4">
               {error}
-            </motion.div>
+            </div>
           )}
-
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            onSubmit={handleSubmit}
-            className="space-y-6 bg-white rounded-3xl p-8 border-2 border-[#151616] shadow-[4px_4px_0px_0px_#151616]"
-          >
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[#151616] font-medium mb-2">Title</label>
+              <label htmlFor="title" className="block text-sm font-medium mb-2">
+                Title
+              </label>
               <input
                 type="text"
+                id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-[#151616] rounded-xl focus:ring-2 focus:ring-[#D6F32F] focus:border-[#151616] transition-all"
+                className="w-full px-4 py-2 rounded-lg border-2 border-[#151616] focus:ring-2 focus:ring-[#D6F32F] focus:border-[#151616] transition-all"
                 required
               />
             </div>
-
             <div>
-              <label className="block text-[#151616] font-medium mb-2">Content</label>
+              <label htmlFor="content" className="block text-sm font-medium mb-2">
+                Content
+              </label>
               <textarea
+                id="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-[#151616] rounded-xl focus:ring-2 focus:ring-[#D6F32F] focus:border-[#151616] transition-all h-32"
+                rows={6}
+                className="w-full px-4 py-2 rounded-lg border-2 border-[#151616] focus:ring-2 focus:ring-[#D6F32F] focus:border-[#151616] transition-all"
                 required
               />
             </div>
-
             <div>
-              <label className="block text-[#151616] font-medium mb-2">Image</label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-[#151616] border-dashed rounded-xl">
-                <div className="space-y-1 text-center">
-                  {preview ? (
-                    <div className="mb-4">
-                      <img
-                        src={preview}
-                        alt="Preview"
-                        className="mx-auto h-48 w-auto object-cover rounded-lg"
-                      />
-                    </div>
-                  ) : (
-                    <Upload className="mx-auto h-12 w-12 text-[#151616]/40" />
-                  )}
-                  <div className="flex text-sm text-[#151616]">
-                    <label
-                      htmlFor="file-upload"
-                      className="relative cursor-pointer bg-[#D6F32F] rounded-lg px-4 py-2 border-2 border-[#151616] shadow-[2px_2px_0px_0px_#151616] hover:shadow-[1px_1px_0px_0px_#151616] hover:translate-y-[1px] hover:translate-x-[1px] transition-all"
-                    >
-                      <span>Upload a file</span>
-                      <input
-                        id="file-upload"
-                        name="file-upload"
-                        type="file"
-                        className="sr-only"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        required
-                      />
-                    </label>
-                    <p className="pl-1 pt-2">or drag and drop</p>
-                  </div>
-                  <p className="text-xs text-[#151616]/70">
-                    PNG, JPG, GIF up to 10MB
-                  </p>
+              <label className="block text-sm font-medium mb-2">
+                Image
+              </label>
+              {!previewUrl ? (
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <label
+                    htmlFor="image-upload"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#151616] rounded-lg cursor-pointer hover:bg-[#D6F32F]/10 transition-colors"
+                  >
+                    <ImageIcon className="w-8 h-8 mb-2 text-gray-500" />
+                    <span className="text-sm text-gray-500">Click to upload an image</span>
+                  </label>
                 </div>
-              </div>
+              ) : (
+                <div className="relative">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
-
             <button
               type="submit"
-              disabled={uploading}
-              className={`w-full bg-[#D6F32F] py-3 rounded-xl font-bold text-[#151616] border-2 border-[#151616] shadow-[4px_4px_0px_0px_#151616] hover:shadow-[2px_2px_0px_0px_#151616] hover:translate-y-[2px] hover:translate-x-[2px] transition-all duration-200 flex items-center justify-center gap-2 ${
-                uploading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              disabled={loading}
+              className="w-full px-6 py-3 bg-[#D6F32F] rounded-lg border-2 border-[#151616] shadow-[4px_4px_0px_0px_#151616] hover:shadow-[2px_2px_0px_0px_#151616] hover:translate-y-[2px] hover:translate-x-[2px] transition-all font-medium disabled:opacity-50"
             >
-              {uploading ? 'Creating Post...' : 'Create Post'}
-              <Send className="w-5 h-5" />
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <Upload className="w-5 h-5 animate-spin mr-2" />
+                  Creating...
+                </span>
+              ) : (
+                'Create Post'
+              )}
             </button>
-          </motion.form>
-        </div>
+          </form>
+        </motion.div>
       </div>
-    </section>
+    </div>
   );
 }

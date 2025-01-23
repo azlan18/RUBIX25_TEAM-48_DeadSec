@@ -4,6 +4,7 @@ import LandingPage from "./pages/LandingPage"
 import { LoginPage } from "./pages/LoginPage"
 import { RegisterPage } from "./pages/RegisterPage"
 import Dashboard from "./pages/Dashboard"
+import StoreFinder from "./pages/StoreFinder"
 import Navbar from './components/NavBar';
 import Footer from './components/Footer';
 import CreatePost from './components/CreatePost';
@@ -26,6 +27,7 @@ const App = () => {
             <Route path="/create-post" element={<CreatePost />} />
             <Route path="/posts/:id" element={<PostDetails />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/store-finder" element={<StoreFinder />} />
             <Route path="/dashboard" element={token ? <Navigate to="/dashboard" /> : <Navigate to="/signin" />} />
           </Routes>
         </main>

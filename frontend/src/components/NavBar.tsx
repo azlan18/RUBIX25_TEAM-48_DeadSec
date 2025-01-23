@@ -10,6 +10,7 @@ import {
   Info,
   Users,
   Plus,
+  MapPin
 } from "lucide-react";
 import { useAuth } from '../contexts/AuthContext';
 
@@ -66,6 +67,7 @@ const Navbar = () => {
     { to: "/", label: "Home", icon: Home },
     { to: "/community", label: "Community", icon: Users },
     { to: "/create-post", label: "Create Post", icon: Plus },
+    { to: "/store-finder", label: "Store Finder", icon: MapPin },
   ];
 
   return (
