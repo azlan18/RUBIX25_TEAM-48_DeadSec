@@ -9,7 +9,7 @@ interface FilterBarProps {
 
 export function FilterBar({ selectedType, onTypeChange }: FilterBarProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2">
+    <div className="flex flex-wrap gap-2">
       <Button 
         variant={selectedType === 'all' ? 'default' : 'outline'}
         onClick={() => onTypeChange('all')}

@@ -23,3 +23,8 @@ export interface MapProps {
 }
 
 export type StoreType = "zero_waste" | "refill_station" | "ethical_market" | "all";
+
+export interface SearchBarProps {
+  onSearch: (location: { lat: number; lng: number }, query?: string) => void;
+  googleApi: typeof google;
+}

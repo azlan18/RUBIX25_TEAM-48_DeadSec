@@ -12,26 +12,24 @@ interface StoreListProps {
 
 export function StoreList({ stores, loading, onStoreSelect, selectedStore }: StoreListProps) {
   if (loading) {
-    return <div className="text-center p-4">Searching for sustainable stores...</div>;
+    return <div className="text-center p-4 text-muted-foreground">Searching for stores...</div>;
   }
 
   if (stores.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-4">
-          No sustainable stores found in this area. Try searching in a different location.
-        </CardContent>
-      </Card>
+      <div className="text-center p-4 text-muted-foreground">
+        Search for stores, places, or addresses above to find locations near you.
+      </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 overflow-auto max-h-[500px]">
       {stores.map((store) => (
         <Card
           key={store.id}
-          className={`cursor-pointer hover:bg-accent/5 ${
-            selectedStore?.id === store.id ? 'border-primary' : ''
+          className={`cursor-pointer transition-colors ${
+            selectedStore?.id === store.id ? "bg-primary/10" : "hover:bg-muted"
           }`}
           onClick={() => onStoreSelect(store)}
         >
@@ -39,13 +37,13 @@ export function StoreList({ stores, loading, onStoreSelect, selectedStore }: Sto
             <CardTitle className="text-lg">{store.name}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-start gap-2">
-              <MapPin className="h-4 w-4 mt-1 shrink-0" />
-              <p>{store.vicinity}</p>
+            <div className="flex items-start space-x-2 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>{store.vicinity}</span>
             </div>
             {store.rating && (
-              <div className="flex items-center gap-2 mt-2">
-                <Star className="h-4 w-4 text-yellow-400" />
+              <div className="flex items-center mt-2 text-sm">
+                <Star className="h-4 w-4 text-yellow-400 mr-1" />
                 <span>{store.rating} / 5</span>
               </div>
             )}

@@ -5,15 +5,13 @@ import { Header } from '../components/Header';
 import { Map } from '../components/Map';
 import { SearchBar } from '../components/SearchBar';
 import { StoreList } from '../components/StoreList';
-import { Button } from '../components/ui/button';
-import { MapPin } from 'lucide-react';
 
 export default function StoreFinder() {
   const [stores, setStores] = useState<Store[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({
-    lat: 51.5074,
-    lng: -0.1278,
+    lat: 19.0760, // Mumbai coordinates
+    lng: 72.8777,
   });
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [googleApi, setGoogleApi] = useState<typeof google | null>(null);
@@ -23,8 +21,7 @@ export default function StoreFinder() {
   useEffect(() => {
     const loadGoogleMapsApi = async () => {
       try {
-        const apiKey = process.env.VITE_GOOGLE_MAPS_API_KEY;
-        console.log('Loading Google Maps with API key:', apiKey); // For debugging
+        const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
         
         if (!apiKey) {
           throw new Error('Google Maps API key is not configured');
@@ -34,102 +31,105 @@ export default function StoreFinder() {
           apiKey,
           version: 'weekly',
           libraries: ['places'],
-          language: 'en',
         });
 
-        const googleInstance = await loader.load();
-        setGoogleApi(googleInstance);
-
-        // Initial search with default location
-        searchNearbyStores(currentLocation, googleInstance);
+        const google = await loader.load();
+        setGoogleApi(google);
       } catch (error) {
         console.error('Failed to load Google Maps API:', error);
         setApiError('Failed to load Google Maps. Please check API key configuration.');
-        setLoading(false);
       }
     };
 
     loadGoogleMapsApi();
   }, []);
 
-  const searchNearbyStores = async (
-    location: { lat: number; lng: number },
-    googleInstance: typeof google
-  ) => {
+  const searchNearbyStores = async (location: { lat: number; lng: number }, googleInstance: typeof google, searchQuery?: string) => {
     try {
       setLoading(true);
-      const service = new googleInstance.maps.places.PlacesService(
-        document.createElement('div')
-      );
+      const service = new googleInstance.maps.places.PlacesService(document.createElement('div'));
 
-      const request = {
-        location: new googleInstance.maps.LatLng(location.lat, location.lng),
-        radius: 5000,
-        keyword: 'zero waste store refill ethical sustainable',
-      };
+      if (searchQuery) {
+        const textSearchRequest = {
+          query: searchQuery,
+          location: new googleInstance.maps.LatLng(location.lat, location.lng),
+          radius: 100000,
+        };
 
-      service.nearbySearch(request, (results, status) => {
-        if (status === googleInstance.maps.places.PlacesServiceStatus.OK && results) {
-          setStores(
-            results.map((place) => ({
-              id: place.place_id!,
-              name: place.name!,
-              address: place.vicinity!,
-              rating: place.rating,
-              types: place.types!,
-              vicinity: place.vicinity!,
-              geometry: {
-                location: {
-                  lat: place.geometry!.location!.lat(),
-                  lng: place.geometry!.location!.lng(),
+        service.textSearch(textSearchRequest, (results, status) => {
+          if (status === googleInstance.maps.places.PlacesServiceStatus.OK && results) {
+            setStores(
+              results.map((place) => ({
+                id: place.place_id!,
+                name: place.name!,
+                address: place.formatted_address!,
+                rating: place.rating,
+                types: place.types!,
+                vicinity: place.formatted_address!,
+                geometry: {
+                  location: {
+                    lat: place.geometry!.location!.lat(),
+                    lng: place.geometry!.location!.lng(),
+                  },
                 },
-              },
-            }))
-          );
-        }
-        setLoading(false);
-      });
+              }))
+            );
+          } else {
+            setStores([]);
+          }
+          setLoading(false);
+        });
+      } else {
+        const nearbySearchRequest = {
+          location: new googleInstance.maps.LatLng(location.lat, location.lng),
+          radius: 10000,
+          keyword: 'sustainable store',
+          type: ['establishment'],
+        };
+
+        service.nearbySearch(nearbySearchRequest, (results, status) => {
+          if (status === googleInstance.maps.places.PlacesServiceStatus.OK && results) {
+            setStores(
+              results.map((place) => ({
+                id: place.place_id!,
+                name: place.name!,
+                address: place.vicinity!,
+                rating: place.rating,
+                types: place.types!,
+                vicinity: place.vicinity!,
+                geometry: {
+                  location: {
+                    lat: place.geometry!.location!.lat(),
+                    lng: place.geometry!.location!.lng(),
+                  },
+                },
+              }))
+            );
+          } else {
+            setStores([]);
+          }
+          setLoading(false);
+        });
+      }
     } catch (error) {
-      console.error('Error fetching nearby stores:', error);
+      console.error('Error fetching stores:', error);
       setLoading(false);
+      setStores([]);
     }
   };
 
-  const handleSearch = (location: { lat: number; lng: number }) => {
+  const handleSearch = (location: { lat: number; lng: number }, searchQuery?: string) => {
     setCurrentLocation(location);
     setSelectedStore(null);
+    setShowCurrentLocation(false);
     if (googleApi) {
-      searchNearbyStores(location, googleApi);
+      searchNearbyStores(location, googleApi, searchQuery);
     }
   };
 
   const handleStoreSelect = (store: Store) => {
     setSelectedStore(store);
     setCurrentLocation(store.geometry.location);
-  };
-
-  const handleShowCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const location = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setCurrentLocation(location);
-          setShowCurrentLocation(true);
-          if (googleApi) {
-            searchNearbyStores(location, googleApi);
-          }
-        },
-        () => {
-          console.log('Unable to retrieve your location');
-          alert('Unable to retrieve your location. Please check your browser settings.');
-        }
-      );
-    } else {
-      alert('Geolocation is not supported by your browser.');
-    }
   };
 
   if (apiError) {
@@ -141,17 +141,8 @@ export default function StoreFinder() {
       <Header />
       <main className="container mx-auto p-4">
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-stretch w-full">
-            <div className="flex-grow">
-              {googleApi && <SearchBar onSearch={handleSearch} googleApi={googleApi} />}
-            </div>
-            <Button 
-              onClick={handleShowCurrentLocation} 
-              className="whitespace-nowrap h-12 px-6 bg-[#D6F32F] border-2 border-[#151616] shadow-[4px_4px_0px_0px_#151616] hover:shadow-[2px_2px_0px_0px_#151616] hover:translate-y-[2px] hover:translate-x-[2px] transition-all rounded-xl"
-            >
-              <MapPin className="mr-2 h-5 w-5" />
-              Use My Location
-            </Button>
+          <div className="w-full">
+            {googleApi && <SearchBar onSearch={handleSearch} googleApi={googleApi} />}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-[350px_1fr] gap-6">

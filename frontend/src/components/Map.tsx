@@ -15,7 +15,9 @@ export function Map({ center, zoom, stores, googleApi, selectedStore, showCurren
   const currentLocationMarkerRef = useRef<google.maps.Marker | null>(null);
 
   useEffect(() => {
-    if (mapRef.current && !googleMapRef.current) {
+    if (!googleApi || !mapRef.current) return;
+
+    if (!googleMapRef.current) {
       googleMapRef.current = new googleApi.maps.Map(mapRef.current, {
         center,
         zoom,
