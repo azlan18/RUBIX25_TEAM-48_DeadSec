@@ -3,22 +3,19 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Mail, Lock, ArrowRight, AlertCircle, MapPin } from "lucide-react"
+import axios from "axios"
+import { jwtDecode } from "jwt-decode"
 
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 
 export function RegisterPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    name: "",
-    dob: "",
-    time: "",
-    gender: "",
-    state: "",
-    city: "",
+    firstName: "",
+    lastName: "",
   })
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -36,12 +33,24 @@ export function RegisterPage() {
     setError("")
     setIsLoading(true)
 
-    // Implement your registration logic here
-    // For now, we'll just simulate a registration after a short delay
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      const response = await axios.post("http://localhost:3000/signup", {
+        username: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        password: formData.password
+      })
+
+      // Save token and user ID to localStorage
+      localStorage.setItem("token", response.data.token)
+      localStorage.setItem("userId", jwtDecode(response.data.token).userId)
+      
+      // Navigate to dashboard on successful signup
       navigate("/dashboard")
-    }, 2000)
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Sign up failed. Please try again.")
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -91,15 +100,15 @@ export function RegisterPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="firstName">First Name</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                     <Input
-                      id="name"
-                      name="name"
+                      id="firstName"
+                      name="firstName"
                       type="text"
-                      placeholder="Enter your name"
-                      value={formData.name}
+                      placeholder="Enter your first name"
+                      value={formData.firstName}
                       onChange={handleChange}
                       className="pl-10"
                       required
@@ -108,20 +117,37 @@ export function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="lastName">Last Name</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                     <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={formData.email}
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      placeholder="Enter your last name"
+                      value={formData.lastName}
                       onChange={handleChange}
                       className="pl-10"
                       required
                     />
                   </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="pl-10"
+                    required
+                  />
                 </div>
               </div>
 
@@ -139,86 +165,6 @@ export function RegisterPage() {
                     className="pl-10"
                     required
                   />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="dob">Date of Birth</Label>
-                  <Input 
-                    id="dob" 
-                    name="dob" 
-                    type="date" 
-                    value={formData.dob} 
-                    onChange={handleChange} 
-                    required 
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="time">Time of Birth</Label>
-                  <Input 
-                    id="time" 
-                    name="time" 
-                    type="time" 
-                    value={formData.time} 
-                    onChange={handleChange} 
-                    required 
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="gender">Gender</Label>
-                <Select
-                  name="gender"
-                  value={formData.gender}
-                  onValueChange={(value) => setFormData({ ...formData, gender: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="state">State</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                    <Input
-                      id="state"
-                      name="state"
-                      type="text"
-                      placeholder="Enter state"
-                      value={formData.state}
-                      onChange={handleChange}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                    <Input
-                      id="city"
-                      name="city"
-                      type="text"
-                      placeholder="Enter city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
                 </div>
               </div>
 

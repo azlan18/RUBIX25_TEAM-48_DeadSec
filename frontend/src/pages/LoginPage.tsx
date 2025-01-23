@@ -3,6 +3,8 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react"
+import axios from "axios"
+import { jwtDecode } from "jwt-decode"
 
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
@@ -21,10 +23,22 @@ export function LoginPage() {
         setError("")
         setIsLoading(true)
 
-        setTimeout(() => {
-            setIsLoading(false)
+        try {
+            const response = await axios.post("http://localhost:3000/signin", {
+                username: email,
+                password: password
+            })
+
+            // Save token and user ID to localStorage
+            localStorage.setItem("token", response.data.token)
+            localStorage.setItem("userId", jwtDecode(response.data.token).userId)
+            
+            // Navigate to dashboard on successful login
             navigate("/dashboard")
-        }, 2000)
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Sign in failed. Please try again.")
+            setIsLoading(false)
+        }
     }
 
     return (
