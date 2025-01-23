@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bot,
@@ -10,7 +10,9 @@ import {
   Info,
   Users,
   Plus,
-  MapPin
+  MapPin,
+  Gauge,
+  BrainCircuit
 } from "lucide-react";
 import { useAuth } from '../contexts/AuthContext';
 
@@ -57,17 +59,25 @@ const NavLink = ({ to, label, icon: Icon }) => {
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { session, setSession } = useAuth();
+  const navigate = useNavigate(); // Hook to enable navigation
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+  
     setSession(null);
+    navigate('/'); // Navigate to the home page
+    window.location.reload(); // Refresh the page
   };
+  
 
   const navItems = [
     { to: "/", label: "Home", icon: Home },
+    { to: "/dashboard", label: "Dashboard", icon: Gauge },
+    { to: "/product-recommendation", label: "Product Recommendation", icon: BrainCircuit },
     { to: "/community", label: "Community", icon: Users },
     { to: "/create-post", label: "Create Post", icon: Plus },
-    { to: "/store-finder", label: "Store Finder", icon: MapPin },
+    { to: "/store-finder", label: "Store Finder", icon: MapPin }
   ];
 
   return (

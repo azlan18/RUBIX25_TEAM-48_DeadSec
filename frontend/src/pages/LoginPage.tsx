@@ -33,8 +33,9 @@ export function LoginPage() {
             localStorage.setItem("token", response.data.token)
             localStorage.setItem("userId", jwtDecode(response.data.token).userId)
             
-            // Navigate to dashboard on successful login
+            // Navigate to dashboard and reload the page
             navigate("/dashboard")
+            window.location.reload()
         } catch (err: any) {
             setError(err.response?.data?.message || "Sign in failed. Please try again.")
             setIsLoading(false)
