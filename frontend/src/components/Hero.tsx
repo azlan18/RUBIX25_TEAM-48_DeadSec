@@ -207,7 +207,7 @@ const Hero = () => {
               className="px-8 py-4 rounded-2xl text-xl font-bold border-2 border-[#151616] hover:bg-[#151616]/5 transition-all duration-200 text-[#151616] shadow-[4px_4px_0px_0px_#D6F32F] flex items-center gap-2"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}>
-              Download App
+              Download Extension
               <Download className="w-5 h-5" />
             </motion.a>
           </div>

@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Sparkles,
-  Moon,
-  Flower,
-  Star,
   ChevronRight,
-  ScrollText,
-  Gem,
-  BrainCircuit,
+  Scan,
+  ChartLine,
+  Lightbulb,
+  ChartBarStacked,
+  Store,
+  Badge
 } from "lucide-react";
 
 // Feature colors for spiritual theme
@@ -115,40 +115,40 @@ const FloatingElement = ({ className, color, delay = 0 }) => (
 const FeatureSection = () => {
   const features = [
     {
-      icon: ScrollText,
-      title: "Pace holder",
+      icon: Scan,
+      title: "Eco-Score Scanner",
       description:
-        "Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssums",
+        "Instantly analyze the environmental impact of products by scanning them using our website.",
     },
     {
-      icon: Star,
-      title: "Pace holder",
+      icon: ChartLine,
+      title: "Tracker",
       description:
-        "Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssums",
+        "Monitor your sustainable shopping habits over time and track your impact on the environment.",
     },
     {
-      icon: Gem,
-      title: "Pace holder",
+      icon: Lightbulb,
+      title: "AI Recommendations",
       description:
-        "Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssums",
+        "Receive personalized product suggestions tailored to your preferences and sustainable goals.",
     },
     {
-      icon: Flower,
-      title: "Pace holder",
+      icon: Badge,
+      title: "Leaderboard & Badges",
       description:
-        "Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssums",
+        "Compete with friends and earn badges for completing sustainable challenges.",
     },
     {
-      icon: Moon,
-      title: "Place Holder",
+      icon: Store,
+      title: "Local Sustainable Retail Finder",
       description:
-        "Discover meditation techniques and wellness practices aligned with your astrological profile for optimal spiritual and physical health.",
+        "Find local stores that prioritize sustainability and offer eco-friendly products.",
     },
     {
-      icon: BrainCircuit,
-      title: "Place Holder",
+      icon: ChartBarStacked,
+      title: "Visual Comparisons",
       description:
-        "Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssum Lorum Ipssums",
+        "Compare the environmental impact of different products side-by-side.",
     },
   ];
 
