@@ -1,32 +1,31 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { Upload, CheckCircle, ShoppingCart, Send } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 
+// TypeScript Interfaces for Type Safety
+interface ProductData {
+    product: string;
+    eco_score: string;
+    carbon_footprint: string;
+    water_usage: string;
+    waste_generated?: string;
+}
+
 interface ProductComparison {
-    better_alternative_product: {
-        eco_score: string;
-        product: string;
-        carbon_footprint: string;
-        water_usage: string;
-        waste_generated?: string;
-    };
-    product_searched: {
-        eco_score: string;
-        product: string;
-        carbon_footprint: string;
-        water_usage: string;
-        waste_generated?: string;
-    };
+    better_alternative_product: ProductData;
+    product_searched: ProductData;
 }
 
 export default function ProductComparisonUI() {
+    // State Management
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string>('');
     const [comparisonData, setComparisonData] = useState<ProductComparison | null>(null);
     const [loading, setLoading] = useState(false);
 
+    // File Selection Handler
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
@@ -36,12 +35,14 @@ export default function ProductComparisonUI() {
         }
     };
 
+    // Reset Image and Comparison Data
     const handleRetake = () => {
         setFile(null);
         setPreview('');
         setComparisonData(null);
     };
 
+    // Submit Product Image for Analysis
     const handleSubmit = async () => {
         if (!file) {
             toast.error('Please upload an image');
@@ -72,17 +73,62 @@ export default function ProductComparisonUI() {
         }
     };
 
-    const handlePurchase = (productName: string) => {
-        toast.success(`Purchase completed for ${productName}`, {
-            duration: 4000,
-            style: {
-                border: '1px solid #151616',
-                padding: '16px',
-                color: '#151616',
-                backgroundColor: '#D6F32F',
-                fontWeight: 'bold',
-            },
-        });
+    // Purchase Handler
+    const handlePurchase = async (isPurchasedProduct: boolean) => {
+        // Ensure we have comparison data and a user ID
+        if (!comparisonData) {
+            toast.error('No product data available');
+            return;
+        }
+
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            toast.error('Please log in to make a purchase');
+            return;
+        }
+
+        // Determine which product is being purchased
+        const purchased = isPurchasedProduct 
+            ? comparisonData.product_searched 
+            : comparisonData.better_alternative_product;
+        
+        const alternative = !isPurchasedProduct 
+            ? comparisonData.product_searched 
+            : comparisonData.better_alternative_product;
+
+        try {
+            const response = await axios.post('http://localhost:3000/save-purchase', {
+                userId,
+                purchased: {
+                    product: purchased.product,
+                    eco_score: purchased.eco_score,
+                    water_usage: purchased.water_usage,
+                    carbon_footprint: purchased.carbon_footprint,
+                    waste_generated: purchased.waste_generated
+                },
+                alternative: {
+                    product: alternative.product,
+                    eco_score: alternative.eco_score,
+                    water_usage: alternative.water_usage,
+                    carbon_footprint: alternative.carbon_footprint,
+                    waste_generated: alternative.waste_generated
+                }
+            });
+
+            toast.success(`Purchase completed for ${purchased.product}`, {
+                duration: 4000,
+                style: {
+                    border: '1px solid #151616',
+                    padding: '16px',
+                    color: '#151616',
+                    backgroundColor: '#D6F32F',
+                    fontWeight: 'bold',
+                },
+            });
+        } catch (error) {
+            console.error('Error saving purchase:', error);
+            toast.error('Failed to record purchase');
+        }
     };
 
     return (
@@ -90,6 +136,7 @@ export default function ProductComparisonUI() {
             <Toaster position="top-right" />
             <div className="container mx-auto px-6">
                 <div className="max-w-2xl mx-auto">
+                    {/* Page Title */}
                     <div className="text-center mb-8">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -101,6 +148,7 @@ export default function ProductComparisonUI() {
                         </motion.div>
                     </div>
 
+                    {/* Image Upload Section */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -141,6 +189,7 @@ export default function ProductComparisonUI() {
                             </div>
                         </div>
 
+                        {/* Action Buttons */}
                         <div className="flex justify-between">
                             <button
                                 onClick={handleSubmit}
@@ -160,9 +209,13 @@ export default function ProductComparisonUI() {
                         </div>
                     </motion.div>
 
+                    {/* Comparison Results */}
                     {comparisonData && (
                         <div className="mt-8 grid gap-8 md:grid-cols-2">
-                            {[comparisonData.product_searched, comparisonData.better_alternative_product].map((product, index) => (
+                            {[
+                                { product: comparisonData.product_searched, isPurchased: true },
+                                { product: comparisonData.better_alternative_product, isPurchased: false }
+                            ].map(({ product, isPurchased }, index) => (
                                 <motion.div
                                     key={index}
                                     initial={{ opacity: 0, y: 20 }}
@@ -177,7 +230,7 @@ export default function ProductComparisonUI() {
                                         <p className="text-sm text-[#151616]/70 mb-4">Waste Generated: <span className="font-bold text-[#151616]">{product.waste_generated}</span></p>
                                     )}
                                     <button
-                                        onClick={() => handlePurchase(product.product)}
+                                        onClick={() => handlePurchase(isPurchased)}
                                         className="bg-[#D6F32F] px-4 py-2 rounded-md font-medium text-[#151616] border-2 border-[#151616] shadow-[4px_4px_0px_0px_#151616] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[2px_2px_0px_0px_#151616] transition-all"
                                     >
                                         Purchase

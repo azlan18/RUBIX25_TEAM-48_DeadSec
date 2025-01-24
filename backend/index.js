@@ -8,7 +8,7 @@ require('dotenv').config();
 // Import db connection
 require('./db');
 
-const { User } = require("./db");
+const { User, PurchaseHistory } = require("./db");
 const postRoutes = require('./routes/post');
 const authMiddleware = require('./middleware/auth');
 
@@ -158,9 +158,9 @@ app.post("/upload-product", upload.single("productImage"), async (req, res) => {
               properties: {
                 product: { type: "string", description: "Name of the product" },
                 eco_score: { type: "string", description: "Eco-score from 1 to 10" },
-                carbon_footprint: { type: "string", description: "Carbon footprint in kg CO2" },
-                water_usage: { type: "string", description: "Water usage in liters" },
-                waste_generated: { type: "string", description: "Waste generated in kg" },
+                carbon_footprint: { type: "string", description: "Carbon footprint in kg CO2, just the number" },
+                water_usage: { type: "string", description: "Water usage in liters, just the number" },
+                waste_generated: { type: "string", description: "Waste generated in kg, just the number" },
               },
               required: ["product", "eco_score"],
             },
@@ -169,9 +169,9 @@ app.post("/upload-product", upload.single("productImage"), async (req, res) => {
               properties: {
                 product: { type: "string", description: "Name of the alternative product" },
                 eco_score: { type: "string", description: "Eco-score from 1 to 10" },
-                carbon_footprint: { type: "string", description: "Carbon footprint in kg CO2" },
-                water_usage: { type: "string", description: "Water usage in liters" },
-                waste_generated: { type: "string", description: "Waste generated in kg" },
+                carbon_footprint: { type: "string", description: "Carbon footprint in kg CO2, just the number" },
+                water_usage: { type: "string", description: "Water usage in liters, just the number" },
+                waste_generated: { type: "string", description: "Waste generated in kg, just the number" },
               },
               required: ["product", "eco_score"],
             },
@@ -243,6 +243,123 @@ app.post("/upload-product", upload.single("productImage"), async (req, res) => {
     });
   }
 });
+
+
+
+
+
+
+
+// Route to save purchase history
+app.post('/save-purchase', async (req, res) => {
+  try {
+    const { 
+      userId, 
+      purchased, 
+      alternative 
+    } = req.body;
+
+    // Validate input
+    if (!userId || !purchased || !alternative) {
+      return res.status(400).json({ 
+        message: 'Missing required fields' 
+      });
+    }
+
+    // Convert string values to numbers
+    const purchaseEntry = new PurchaseHistory({
+      userId,
+      purchased: {
+        product: purchased.product,
+        eco_score: parseFloat(purchased.eco_score),
+        water_usage: parseFloat(purchased.water_usage),
+        carbon_footprint: parseFloat(purchased.carbon_footprint),
+        waste_generated: purchased.waste_generated 
+          ? parseFloat(purchased.waste_generated) 
+          : undefined
+      },
+      alternative: {
+        product: alternative.product,
+        eco_score: parseFloat(alternative.eco_score),
+        water_usage: parseFloat(alternative.water_usage),
+        carbon_footprint: parseFloat(alternative.carbon_footprint),
+        waste_generated: alternative.waste_generated 
+          ? parseFloat(alternative.waste_generated) 
+          : undefined
+      }
+    });
+
+    // Save the purchase history
+    const savedPurchase = await purchaseEntry.save();
+
+    res.status(201).json({
+      message: 'Purchase history saved successfully',
+      purchase: savedPurchase
+    });
+  } catch (error) {
+    console.error('Error saving purchase history:', error);
+    res.status(500).json({ 
+      message: 'Failed to save purchase history', 
+      error: error.message 
+    });
+  }
+});
+
+// Route to get purchase history for a user
+app.get('/purchase-history/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const purchaseHistory = await PurchaseHistory.find({ userId })
+      .sort({ purchaseDate: -1 }); // Sort by most recent first
+
+    res.status(200).json({
+      message: 'Purchase history retrieved successfully',
+      purchases: purchaseHistory
+    });
+  } catch (error) {
+    console.error('Error retrieving purchase history:', error);
+    res.status(500).json({ 
+      message: 'Failed to retrieve purchase history', 
+      error: error.message 
+    });
+  }
+});
+
+
+
+
+
+
+
+
+
+// Add this to your existing routes file
+app.get('/purchase-history/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const purchaseHistory = await PurchaseHistory.find({ userId })
+      .sort({ purchaseDate: -1 }); // Sort by most recent first
+
+    res.status(200).json({
+      message: 'Purchase history retrieved successfully',
+      purchases: purchaseHistory
+    });
+  } catch (error) {
+    console.error('Error retrieving purchase history:', error);
+    res.status(500).json({ 
+      message: 'Failed to retrieve purchase history', 
+      error: error.message 
+    });
+  }
+});
+
+
+
+
+
+
 
 
 

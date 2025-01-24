@@ -1,9 +1,10 @@
+import TransactionHistoryPage from "./TransactionHistoryPage"
+import EnvironmentalImpactPage from "./EnvironmentalImpactPage"
 const Dashboard = () => {
   return (
-    <div className="min-h-20 bg-[#FFFFF4] relative mt-20">
-      <div className="flex justify-center items-center">
-        DASHBOARD
-      </div>
+    <div>
+      <TransactionHistoryPage/>
+      <EnvironmentalImpactPage/>
     </div>
   )
 }
