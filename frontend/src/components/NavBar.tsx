@@ -12,7 +12,8 @@ import {
   Plus,
   MapPin,
   Gauge,
-  BrainCircuit
+  BrainCircuit,
+  ScrollText
 } from "lucide-react";
 import { useAuth } from '../contexts/AuthContext';
 
@@ -77,6 +78,7 @@ const Navbar = () => {
     { to: "/product-recommendation", label: "Product Recommendation", icon: BrainCircuit },
     { to: "/community", label: "Community", icon: Users },
     { to: "/create-post", label: "Create Post", icon: Plus },
+    { to: "/leaderboard", label: "Leader Board", icon: ScrollText },
     { to: "/store-finder", label: "Store Finder", icon: MapPin }
   ];
 

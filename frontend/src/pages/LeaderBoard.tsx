@@ -1,11 +1,10 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useState } from "react"
-import axios from "axios"
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { Trophy, Medal, User, Loader2, Leaf } from "lucide-react"
-import { Toaster, toast } from "react-hot-toast"
+import { Toaster } from "react-hot-toast"
 
 interface LeaderboardUser {
   _id: string
@@ -17,24 +16,19 @@ interface LeaderboardUser {
 }
 
 const LeaderboardPage: React.FC = () => {
-  const [users, setUsers] = useState<LeaderboardUser[]>([])
-  const [loading, setLoading] = useState(true)
+  // Hardcoded leaderboard data
+  const [users, setUsers] = useState<LeaderboardUser[]>([
+    { _id: "67924ff09f81db52be300e6f", username: "onlinelearner01learn@gmail.com", firstName: "Shubham", lastName: "Mourya", eco_score: 9.2},
+    { _id: "67926791bc21247ac2ee4dae", username: "elon@gmail.com", firstName: "Elon", lastName: "Musk", eco_score: 8.6 },
+    { _id: "679287492132e6bbd07bedc6", username: "joe@gmail.com", firstName: "Joe", lastName: "Biden", eco_score: 7.5},
+    { _id: "67929283016c8f5babba6557", username: "scarlett@gmail.com", firstName: "Scarlett", lastName: "Johanson", eco_score: 7.5 },
+    { _id: "6792a65349debf611462fc90", username: "john@gmail.com", firstName: "John", lastName: "Cena", eco_score: 7.4 },
+    { _id: "67921b492a800c5e09763d66", username: "azlankhawar@gmail.com", firstName: "Azlan", lastName: "Khawar", eco_score: 6.7 },
+    { _id: "67921fd408232db70bcc6926", username: "varad@gmail.com", firstName: "Varad", lastName: "Sankhe", eco_score: 6.6 },
+    { _id: "679220a508232db70bcc6929", username: "shubham@gmail.com", firstName: "Shubham", lastName: "Mourya", eco_score: 5.2 },
+  ])
 
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        const response = await axios.get<{ users: LeaderboardUser[] }>("http://localhost:3000/leaderboard")
-        setUsers(response.data.users)
-        setLoading(false)
-      } catch (error) {
-        console.error("Error fetching leaderboard data:", error)
-        setLoading(false)
-        toast.error("Failed to load leaderboard. Please try again.")
-      }
-    }
-
-    fetchLeaderboard()
-  }, [])
+  const [loading, setLoading] = useState(false)
 
   const getPositionIcon = (index: number) => {
     switch (index) {
@@ -63,7 +57,7 @@ const LeaderboardPage: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="bg-white rounded-3xl p-6 border-2 border-[#151616] shadow-[4px_4px_0px_0px_#151616] mb-4 overflow-hidden transition-all hover:shadow-[2px_2px_0px_0px_#151616] hover:translate-y-[2px] hover:translate-x-[2px]"
+      className="bg-white rounded-3xl p-6 border-2 border-[#151616] shadow-[4px_4px_0px_0px_#151616] mb-4 overflow-hidden transition-all hover:shadow-[2px_2px_0px_0px_#151616] hover:-translate-y-[2px] hover:-translate-x-[2px]"
     >
       <div className="flex items-center space-x-4">
         <div className="flex-shrink-0">{getPositionIcon(index)}</div>
@@ -90,7 +84,7 @@ const LeaderboardPage: React.FC = () => {
             <span className="text-sm font-bold text-[#151616]">{user.eco_score}</span>
           </div>
           <div className="w-24 sm:w-32 bg-[#151616] rounded-full h-2">
-            <div className="bg-[#D6F32F] h-2 rounded-full" style={{ width: `${user.eco_score}%` }} />
+            <div className="bg-[#D6F32F] h-2 rounded-full" style={{ width: `${user.eco_score*10}%` }} />
           </div>
         </div>
       </div>
@@ -135,4 +129,3 @@ const LeaderboardPage: React.FC = () => {
 }
 
 export default LeaderboardPage
-

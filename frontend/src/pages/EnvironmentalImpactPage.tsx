@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { Leaf } from "lucide-react"
+import { Leaf, ShoppingCart } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -14,6 +14,7 @@ import {
   ResponsiveContainer,
 } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { motion } from "framer-motion"
 
 const EnvironmentalImpactPage = () => {
   const [purchaseData, setPurchaseData] = useState([])
@@ -167,7 +168,17 @@ const EnvironmentalImpactPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto p-6 max-w-7xl mt-16">
+      <div className="text-center mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="inline-flex items-center gap-2 bg-[#151616] text-white rounded-full px-4 py-2 mb-4"
+        >
+          <ShoppingCart className="w-4 h-4 text-[#D6F32F]" />
+          <span className="text-sm font-medium">Metrics</span>
+        </motion.div>
+      </div>
       <h1 className="text-3xl font-bold mb-6">Environmental Impact Comparison</h1>
 
       {renderEcoScoreContainer()}

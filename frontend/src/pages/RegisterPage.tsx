@@ -46,7 +46,8 @@ export function RegisterPage() {
       localStorage.setItem("userId", jwtDecode(response.data.token).userId)
       
       // Navigate to dashboard on successful signup
-      navigate("/dashboard")
+      navigate("/community")
+      window.location.reload()
     } catch (err: any) {
       setError(err.response?.data?.message || "Sign up failed. Please try again.")
       setIsLoading(false)

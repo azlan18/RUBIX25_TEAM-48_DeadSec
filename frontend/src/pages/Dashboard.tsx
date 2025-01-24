@@ -3,8 +3,8 @@ import EnvironmentalImpactPage from "./EnvironmentalImpactPage"
 const Dashboard = () => {
   return (
     <div>
-      <TransactionHistoryPage/>
       <EnvironmentalImpactPage/>
+      <TransactionHistoryPage/>
     </div>
   )
 }
