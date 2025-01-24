@@ -327,40 +327,93 @@ app.get('/purchase-history/:userId', async (req, res) => {
 });
 
 
+// Add this to your backend/index.js file
 
-
-
-
-
-
-
-// Add this to your existing routes file
-app.get('/purchase-history/:userId', async (req, res) => {
+app.get("/leaderboard", async (req, res) => {
   try {
-    const { userId } = req.params;
+    // Aggregate eco scores for all users
+    const leaderboardResults = await User.aggregate([
+      // Join with PurchaseHistory to include all purchases for each user
+      {
+        $lookup: {
+          from: "purchasehistories", // Ensure collection name matches in MongoDB
+          localField: "_id",
+          foreignField: "userId",
+          as: "purchases"
+        }
+      },
+      // Unwind the purchases array (creates a document for each purchase)
+      {
+        $unwind: {
+          path: "$purchases",
+          preserveNullAndEmptyArrays: true // Keep users with no purchases
+        }
+      },
+      // Group by user and calculate average eco score
+      {
+        $group: {
+          _id: "$_id",
+          username: { $first: "$username" },
+          firstName: { $first: "$firstName" },
+          lastName: { $first: "$lastName" },
+          eco_scores: {
+            $push: {
+              $ifNull: ["$purchases.purchased.eco_score", null] // Collect eco scores, handle nulls
+            }
+          }
+        }
+      },
+      // Calculate the average eco score, handling users with no purchases
+      {
+        $project: {
+          username: 1,
+          firstName: 1,
+          lastName: 1,
+          eco_score: {
+            $cond: {
+              if: { $gt: [{ $size: "$eco_scores" }, 0] }, // Check if there are any scores
+              then: {
+                $avg: {
+                  $filter: {
+                    input: "$eco_scores", // Filter out null values
+                    cond: { $ne: ["$$this", null] }
+                  }
+                }
+              },
+              else: 0 // Default score for users with no purchases
+            }
+          }
+        }
+      },
+      // Sort by eco score in descending order
+      {
+        $sort: { eco_score: -1 }
+      },
+      // Limit to top 10 users
+      {
+        $limit: 10
+      }
+    ]);
 
-    const purchaseHistory = await PurchaseHistory.find({ userId })
-      .sort({ purchaseDate: -1 }); // Sort by most recent first
+    // Map the results to match the desired response format
+    const formattedResults = leaderboardResults.map((user) => ({
+      _id: user._id,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      eco_score: Math.round(user.eco_score) // Round eco_score to nearest integer
+    }));
 
-    res.status(200).json({
-      message: 'Purchase history retrieved successfully',
-      purchases: purchaseHistory
-    });
+    // Send the formatted results as a JSON response
+    res.json({ users: formattedResults });
   } catch (error) {
-    console.error('Error retrieving purchase history:', error);
-    res.status(500).json({ 
-      message: 'Failed to retrieve purchase history', 
-      error: error.message 
+    console.error("Error fetching leaderboard:", error);
+    res.status(500).json({
+      message: "Failed to retrieve leaderboard",
+      error: error.message
     });
   }
 });
-
-
-
-
-
-
-
 
 
 const PORT = process.env.PORT || 3000;

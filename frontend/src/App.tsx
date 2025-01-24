@@ -11,8 +11,7 @@ import PostDetails from './components/PostDetails';
 import Community from './components/Community';
 import ProductRecommendation from './pages/ProductRecommendation'
 import EnvironmentalImpactPage from './pages/EnvironmentalImpactPage'
-
-
+import LeaderboardPage from "./pages/LeaderBoard";
 const App = () => {
   const isLoggedIn = !!localStorage.getItem('token'); // Check if token exists in localStorage
 
@@ -38,6 +37,7 @@ const App = () => {
             <Route path="/community" element={<Community />} />
             <Route path="/store-finder" element={<StoreFinder />} />
             <Route path="/visualise" element={<EnvironmentalImpactPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
 
 
           </Routes>
