@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://greengauge-zw9a.onrender.com/api';
 
 export const api = {
   async getPosts() {

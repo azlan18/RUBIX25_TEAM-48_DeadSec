@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { Leaf, ShoppingCart } from "lucide-react"
+import { Leaf, ChartNoAxesCombined } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  
 } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { motion } from "framer-motion"
@@ -30,7 +31,7 @@ const EnvironmentalImpactPage = () => {
           throw new Error("No user ID found")
         }
 
-        const response = await fetch(`http://localhost:3000/purchase-history/${userId}`)
+        const response = await fetch(`https://greengauge-zw9a.onrender.com/purchase-history/${userId}`)
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -175,7 +176,7 @@ const EnvironmentalImpactPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="inline-flex items-center gap-2 bg-[#151616] text-white rounded-full px-4 py-2 mb-4"
         >
-          <ShoppingCart className="w-4 h-4 text-[#D6F32F]" />
+          <ChartNoAxesCombined className="w-4 h-4 text-[#D6F32F]" />
           <span className="text-sm font-medium">Metrics</span>
         </motion.div>
       </div>

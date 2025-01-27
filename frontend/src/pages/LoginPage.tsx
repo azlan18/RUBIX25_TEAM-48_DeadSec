@@ -24,7 +24,7 @@ export function LoginPage() {
         setIsLoading(true)
 
         try {
-            const response = await axios.post("http://localhost:3000/signin", {
+            const response = await axios.post("https://greengauge-zw9a.onrender.com/signin", {
                 username: email,
                 password: password
             })

@@ -56,7 +56,7 @@ export default function ProductComparisonUI() {
         formData.append('productImage', file);
 
         try {
-            const response = await axios.post('http://localhost:3000/upload-product', formData, {
+            const response = await axios.post('https://greengauge-zw9a.onrender.com/upload-product', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -97,7 +97,7 @@ export default function ProductComparisonUI() {
             : comparisonData.better_alternative_product;
 
         try {
-            const response = await axios.post('http://localhost:3000/save-purchase', {
+            const response = await axios.post('https://greengauge-zw9a.onrender.com/save-purchase', {
                 userId,
                 purchased: {
                     product: purchased.product,
@@ -224,10 +224,10 @@ export default function ProductComparisonUI() {
                                 >
                                     <h3 className="text-lg font-bold text-[#151616] mb-2">{product.product}</h3>
                                     <p className="text-sm text-[#151616]/70 mb-2">Eco Score: <span className="font-bold text-[#151616]">{product.eco_score}</span></p>
-                                    <p className="text-sm text-[#151616]/70 mb-2">Carbon Footprint: <span className="font-bold text-[#151616]">{product.carbon_footprint}</span></p>
-                                    <p className="text-sm text-[#151616]/70 mb-2">Water Usage: <span className="font-bold text-[#151616]">{product.water_usage}</span></p>
+                                    <p className="text-sm text-[#151616]/70 mb-2">Carbon Footprint: <span className="font-bold text-[#151616]">{product.carbon_footprint} Kg CO2</span></p>
+                                    <p className="text-sm text-[#151616]/70 mb-2">Water Usage: <span className="font-bold text-[#151616]">{product.water_usage} L</span></p>
                                     {product.waste_generated && (
-                                        <p className="text-sm text-[#151616]/70 mb-4">Waste Generated: <span className="font-bold text-[#151616]">{product.waste_generated}</span></p>
+                                        <p className="text-sm text-[#151616]/70 mb-4">Waste Generated: <span className="font-bold text-[#151616]">{product.waste_generated} kg</span></p>
                                     )}
                                     <button
                                         onClick={() => handlePurchase(isPurchased)}

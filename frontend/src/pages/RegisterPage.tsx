@@ -34,7 +34,7 @@ export function RegisterPage() {
     setIsLoading(true)
 
     try {
-      const response = await axios.post("http://localhost:3000/signup", {
+      const response = await axios.post("https://greengauge-zw9a.onrender.com/signup", {
         username: formData.email,
         firstName: formData.firstName,
         lastName: formData.lastName,

@@ -47,7 +47,7 @@ export default function TransactionHistoryPage() {
       }
 
       try {
-        const response = await axios.get(`http://localhost:3000/purchase-history/${userId}`);
+        const response = await axios.get(`https://greengauge-zw9a.onrender.com/purchase-history/${userId}`);
         setPurchases(response.data.purchases);
         setLoading(false);
       } catch (error) {

@@ -45,7 +45,7 @@ export default function CreatePost() {
       formData.append('image', file);
       formData.append('author', userId);
 
-      const response = await axios.post('http://localhost:3000/api/posts', formData, {
+      const response = await axios.post('https://greengauge-zw9a.onrender.com/api/posts', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
