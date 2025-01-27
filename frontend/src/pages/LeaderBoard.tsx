@@ -18,12 +18,12 @@ interface LeaderboardUser {
 const LeaderboardPage: React.FC = () => {
   // Hardcoded leaderboard data
   const [users, setUsers] = useState<LeaderboardUser[]>([
-    { _id: "67924ff09f81db52be300e6f", username: "onlinelearner01learn@gmail.com", firstName: "Shubham", lastName: "Mourya", eco_score: 9.2},
-    { _id: "67926791bc21247ac2ee4dae", username: "elon@gmail.com", firstName: "Elon", lastName: "Musk", eco_score: 8.6 },
-    { _id: "679287492132e6bbd07bedc6", username: "joe@gmail.com", firstName: "Joe", lastName: "Biden", eco_score: 7.5},
+    { _id: "67924ff09f81db52be300e6f", username: "azlankhawar@gmail.com", firstName: "Azlan", lastName: "Khawar", eco_score: 9.2},
+    { _id: "67926791bc21247ac2ee4dae", username: "elonmusk@gmail.com", firstName: "Elon", lastName: "Musk", eco_score: 8.6 },
+    { _id: "679287492132e6bbd07bedc6", username: "joebiden@gmail.com", firstName: "Joe", lastName: "Biden", eco_score: 7.5},
     { _id: "67929283016c8f5babba6557", username: "scarlett@gmail.com", firstName: "Scarlett", lastName: "Johanson", eco_score: 7.5 },
     { _id: "6792a65349debf611462fc90", username: "john@gmail.com", firstName: "John", lastName: "Cena", eco_score: 7.4 },
-    { _id: "67921b492a800c5e09763d66", username: "azlankhawar@gmail.com", firstName: "Azlan", lastName: "Khawar", eco_score: 6.7 },
+    { _id: "67921b492a800c5e09763d66", username: "cristiano@gmail.com", firstName: "Cristiano", lastName: "Ronaldo", eco_score: 6.7 },
     { _id: "67921fd408232db70bcc6926", username: "varad@gmail.com", firstName: "Varad", lastName: "Sankhe", eco_score: 6.6 },
     { _id: "679220a508232db70bcc6929", username: "shubham@gmail.com", firstName: "Shubham", lastName: "Mourya", eco_score: 5.2 },
   ])
