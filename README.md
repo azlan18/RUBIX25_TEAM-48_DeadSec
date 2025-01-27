@@ -1,4 +1,4 @@
-# This project bagged us the 2nd Runner-Up position at RUBIX'25
+# This project bagged us the 2nd Runner-Up position at RUBIX'25 Hackathon
 
 ![image](https://github.com/user-attachments/assets/030ab90e-ff5f-4120-b81b-2796015a8218)
 ![image](https://github.com/user-attachments/assets/a96e3d69-6dc6-4cd9-a92a-95adb05c39da)
